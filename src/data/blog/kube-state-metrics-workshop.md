@@ -19,34 +19,39 @@ description: "A Hands-On Guide to Monitoring Kubernetes with Azure AKS using Kub
 
 1. [Prerequisites](#1-prerequisites)
 2. [Setup](#2-setup)
-  * [Install Azure CLI](#21-install-azure-cli)
-  * [Install Kubectl](#22-install-kubectl)
-  * [Install Helm](#23-install-helm)
-  * [Log in to Azure](#24-log-in-to-azure)
-  * [Create a Resource Group](#25-create-a-resource-group)
-3. [Workshop Steps](#3-workshop-steps)
-  * [Create an AKS Cluster](#31-create-an-aks-cluster)
-  * [Connect Kubectl to AKS](#32-connect-kubectl-to-aks)
-  * [Deploy an Example NGINX Workload](#33-deploy-an-example-nginx-workload)
-  * [Install Kube-State-Metrics using Helm](#34-install-kube-state-metrics-using-helm)
-  * [Install Prometheus using Helm](#35-install-prometheus-using-helm)
-  * [Access Prometheus Dashboard](#36-access-prometheus-dashboard)
-  * [Query Kube-State-Metrics in Prometheus](#37-query-kube-state-metrics-in-prometheus)
-  * [Advanced PromQL: Joining Metrics with Labels](#38-advanced-promql-joining-metrics-with-labels)
-4. [Teardown](#4-teardown)
-  * [Delete Helm Releases](#41-delete-helm-releases)
-  * [Delete the Example NGINX Workload](#42-delete-the-example-nginx-workload)
-  * [Delete the AKS Cluster](#43-delete-the-aks-cluster)
-  * [Delete the Resource Group](#44-delete-the-resource-group)
 
------
+- [Install Azure CLI](#21-install-azure-cli)
+- [Install Kubectl](#22-install-kubectl)
+- [Install Helm](#23-install-helm)
+- [Log in to Azure](#24-log-in-to-azure)
+- [Create a Resource Group](#25-create-a-resource-group)
+
+3. [Workshop Steps](#3-workshop-steps)
+
+- [Create an AKS Cluster](#31-create-an-aks-cluster)
+- [Connect Kubectl to AKS](#32-connect-kubectl-to-aks)
+- [Deploy an Example NGINX Workload](#33-deploy-an-example-nginx-workload)
+- [Install Kube-State-Metrics using Helm](#34-install-kube-state-metrics-using-helm)
+- [Install Prometheus using Helm](#35-install-prometheus-using-helm)
+- [Access Prometheus Dashboard](#36-access-prometheus-dashboard)
+- [Query Kube-State-Metrics in Prometheus](#37-query-kube-state-metrics-in-prometheus)
+- [Advanced PromQL: Joining Metrics with Labels](#38-advanced-promql-joining-metrics-with-labels)
+
+4. [Teardown](#4-teardown)
+
+- [Delete Helm Releases](#41-delete-helm-releases)
+- [Delete the Example NGINX Workload](#42-delete-the-example-nginx-workload)
+- [Delete the AKS Cluster](#43-delete-the-aks-cluster)
+- [Delete the Resource Group](#44-delete-the-resource-group)
+
+---
 
 ## 1\. Prerequisites
 
 Before you begin, ensure you have:
 
-  * An Azure account with an active subscription.
-  * Administrator privileges on your local machine to install software.
+- An Azure account with an active subscription.
+- Administrator privileges on your local machine to install software.
 
 ## 2\. Setup
 
@@ -96,10 +101,10 @@ Follow the instructions on the official Microsoft documentation: [Install Azure 
 2.  Create a directory for `kubectl`, for example, `C:\kubectl`.
 3.  Move the downloaded `kubectl.exe` to this directory.
 4.  Add `C:\kubectl` to your system's `PATH` environment variable.
-      * Search for "Environment Variables" in the Windows search bar and open "Edit the system environment variables".
-      * Click "Environment Variables...".
-      * Under "User variables for...", select `Path` and click "Edit...".
-      * Click "New" and add `C:\kubectl`. Click "OK" on all open windows.
+    - Search for "Environment Variables" in the Windows search bar and open "Edit the system environment variables".
+    - Click "Environment Variables...".
+    - Under "User variables for...", select `Path` and click "Edit...".
+    - Click "New" and add `C:\kubectl`. Click "OK" on all open windows.
 5.  Close and reopen your command prompt or PowerShell to apply the changes.
 6.  Verify the installation:
     ```bash
@@ -117,26 +122,26 @@ Helm is a package manager for Kubernetes, which we'll use to deploy `kube-state-
 
 1. Open a command prompt or PowerShell.
 2. Install Helm using winget:
-    ```bash
-    winget install Helm.Helm
-    ```
+   ```bash
+   winget install Helm.Helm
+   ```
 3. Verify the installation:
-    ```bash
-    helm version
-    ```
+   ```bash
+   helm version
+   ```
 
 **Windows (using Chocolatey - Alternative):**
 
 1. If you don't have Chocolatey, install it by following the instructions on their website: [Chocolatey Installation](https://chocolatey.org/install)
 2. Open an **elevated** PowerShell or Command Prompt (Run as Administrator).
 3. Install Helm:
-    ```bash
-    choco install kubernetes-helm
-    ```
+   ```bash
+   choco install kubernetes-helm
+   ```
 4. Verify the installation:
-    ```bash
-    helm version
-    ```
+   ```bash
+   helm version
+   ```
 
 **Windows (manual download - Alternative):**
 
@@ -144,9 +149,9 @@ Helm is a package manager for Kubernetes, which we'll use to deploy `kube-state-
 2. Unzip the downloaded file. You'll find a `helm.exe` executable.
 3. Move `helm.exe` to a directory included in your system's `PATH` (e.g., `C:\Program Files\Helm` and add it to PATH, or place it in `C:\kubectl` if you added that to your PATH).
 4. Verify the installation:
-    ```bash
-    helm version
-    ```
+   ```bash
+   helm version
+   ```
 
 **macOS/Linux:**
 
@@ -184,11 +189,11 @@ This command creates a basic AKS cluster. For production environments, you'd wan
 ```bash
 AKS_CLUSTER_NAME="myAKSCluster"
 
-az aks create 
-    --resource-group $RESOURCE_GROUP_NAME 
-    --name $AKS_CLUSTER_NAME 
-    --node-count 1 
-    --generate-ssh-keys 
+az aks create
+    --resource-group $RESOURCE_GROUP_NAME
+    --name $AKS_CLUSTER_NAME
+    --node-count 1
+    --generate-ssh-keys
     --node-vm-size standard_ds2_v2 # A common general-purpose VM size
 ```
 
@@ -235,10 +240,10 @@ spec:
         app: nginx
     spec:
       containers:
-      - name: nginx
-        image: nginx:latest
-        ports:
-        - containerPort: 80
+        - name: nginx
+          image: nginx:latest
+          ports:
+            - containerPort: 80
 ---
 apiVersion: v1
 kind: Service
@@ -362,35 +367,35 @@ In the expression input box, you can enter various PromQL queries to explore met
 
 Here are some example queries related to your NGINX workload:
 
-  * **Number of running NGINX pods:**
+- **Number of running NGINX pods:**
 
-    ```promql
-    kube_pod_status_phase{pod=~"nginx-deployment.*", phase="Running"}
-    ```
+  ```promql
+  kube_pod_status_phase{pod=~"nginx-deployment.*", phase="Running"}
+  ```
 
-  * **Number of desired NGINX replicas for the deployment:**
+- **Number of desired NGINX replicas for the deployment:**
 
-    ```promql
-    kube_deployment_spec_replicas{deployment="nginx-deployment"}
-    ```
+  ```promql
+  kube_deployment_spec_replicas{deployment="nginx-deployment"}
+  ```
 
-  * **Current number of available replicas for the NGINX deployment:**
+- **Current number of available replicas for the NGINX deployment:**
 
-    ```promql
-    kube_deployment_status_replicas_available{deployment="nginx-deployment"}
-    ```
+  ```promql
+  kube_deployment_status_replicas_available{deployment="nginx-deployment"}
+  ```
 
-  * **Pod restart count (if any NGINX pods have restarted):**
+- **Pod restart count (if any NGINX pods have restarted):**
 
-    ```promql
-    kube_pod_container_status_restarts_total{pod=~"nginx-deployment.*"}
-    ```
+  ```promql
+  kube_pod_container_status_restarts_total{pod=~"nginx-deployment.*"}
+  ```
 
-  * **Information about Kubernetes deployments (including NGINX):**
+- **Information about Kubernetes deployments (including NGINX):**
 
-    ```promql
-    kube_deployment_info
-    ```
+  ```promql
+  kube_deployment_info
+  ```
 
 Type `kube_` in the expression box and explore the auto-completion suggestions. You'll find many metrics providing insights into the state of your NGINX deployment and other Kubernetes objects.
 
@@ -398,7 +403,7 @@ Type `kube_` in the expression box and explore the auto-completion suggestions. 
 
 Prometheus allows you to join data from different metrics using label matching. This is useful for correlating information across resources, such as deployments and pods, or pods and nodes. Here are some advanced examples you can try in the Prometheus UI:
 
-* **Join NGINX pod restarts with pod phase (show restart count only for running pods):**
+- **Join NGINX pod restarts with pod phase (show restart count only for running pods):**
 
   ```promql
   kube_pod_container_status_restarts_total{pod=~"nginx-deployment.*"}
@@ -406,18 +411,20 @@ Prometheus allows you to join data from different metrics using label matching. 
     kube_pod_status_phase{phase="Running"}
   ```
 
-* **Show desired vs available replicas for all deployments (side-by-side):**
+- **Show desired vs available replicas for all deployments (side-by-side):**
 
   ```promql
   kube_deployment_spec_replicas - kube_deployment_status_replicas_available
   ```
+
   This shows the difference between desired and available replicas for each deployment.
 
-* **List NGINX pods with their node assignment:**
+- **List NGINX pods with their node assignment:**
 
   ```promql
   kube_pod_info{pod=~"nginx-deployment.*"}
   ```
+
   This metric includes labels for `pod`, `namespace`, and `node`, allowing you to see which node each NGINX pod is running on.
 
 Explore more by using the `on()` and `group_left()`/`group_right()` operators in PromQL to join metrics on shared labels. This enables powerful cross-resource queries and deeper insights into your Kubernetes workloads.

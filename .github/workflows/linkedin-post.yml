@@ -1,0 +1,45 @@
+name: Post to LinkedIn
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/data/blog/**.md'
+
+jobs:
+  linkedin-share:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get added files
+        id: changed-files
+        uses: tj-actions/changed-files@v44
+        with:
+          files: 'src/data/blog/**.md'
+          files_ignore: 'src/data/blog/**/_*.md' # Ignore drafts/partials starting with _
+          status: 'added'
+
+      - name: Setup Node.js
+        if: steps.changed-files.outputs.any_changed == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: npm ci
+
+      - name: Run LinkedIn Share Script
+        if: steps.changed-files.outputs.any_changed == 'true'
+        env:
+          LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
+          LINKEDIN_USER_URN: ${{ secrets.LINKEDIN_USER_URN }}
+        run: |
+          echo "Processing added files: ${{ steps.changed-files.outputs.all_changed_files }}"
+          node scripts/linkedin-share.js ${{ steps.changed-files.outputs.all_changed_files }}

@@ -20,7 +20,7 @@ if (fs.existsSync(envPath)) {
 // Environment variables
 const ACCESS_TOKEN = process.env.LINKEDIN_ACCESS_TOKEN;
 const USER_URN_OVERRIDE = process.env.LINKEDIN_USER_URN;
-const SITE_URL = "https://moi.dev"; // Updated to moi.dev
+const SITE_URL = "https://moi.dev";
 const API_VERSION = "202601";
 
 if (!ACCESS_TOKEN) {
@@ -80,21 +80,25 @@ async function postToLinkedIn(post, authorUrn) {
   const hashtags = tags ? tags.map(tag => `#${tag.replace(/\s+/g, "")}`).join(" ") : "";
 
   // Prepare full content for LinkedIn
-  // Remove markdown headers and excessive whitespace for a cleaner LinkedIn look
+  // Remove markdown headers and excessive whitespace
   const cleanBody = content
-    .replace(/^#+ .*\n/gm, "") // Remove H1, H2, etc.
-    .replace(/\[([^\]]+)\]\([^\)]+\)/g, "$1") // Remove markdown links but keep text
+    .replace(/^#+ .*\n/gm, "") // Remove headers
+    .replace(/\[([^\]]+)\]\([^\)]+\)/g, "$1") // Simplify links
+    .replace(/(\r\n|\n|\r)/gm, "\n") // Normalize newlines
     .trim();
 
   const header = `🚀 New Post: ${title}\n\n`;
-  const footer = `\n\nRead the full article at: ${articleUrl}\n\n${hashtags}`;
+  const footer = `\n\n👇 Read the full article and see the workflow at:\n${articleUrl}\n\n${hashtags}`;
   
-  // LinkedIn limit is ~3000 chars. 
-  const maxBodyLength = 3000 - header.length - footer.length - 10;
+  // LinkedIn limit is 3000 chars. 
+  // We leave buffer for the link and tags.
+  const maxBodyLength = 3000 - header.length - footer.length - 20;
   let finalBody = cleanBody;
+  let isTruncated = false;
   
   if (finalBody.length > maxBodyLength) {
-    finalBody = finalBody.substring(0, maxBodyLength) + "...";
+    finalBody = finalBody.substring(0, maxBodyLength).trim() + "... (truncated)";
+    isTruncated = true;
   }
 
   const message = `${header}${finalBody}${footer}`;
@@ -120,7 +124,9 @@ async function postToLinkedIn(post, authorUrn) {
   };
 
   try {
-    console.log(`📤 Posting full content of "${title}" to LinkedIn as ${authorUrn}...`);
+    console.log(`📤 Posting content of "${title}" to LinkedIn as ${authorUrn}...`);
+    if (isTruncated) console.log("⚠️ Content was truncated to fit LinkedIn limit.");
+    
     const response = await axios.post("https://api.linkedin.com/rest/posts", payload, {
       headers: {
         Authorization: `Bearer ${ACCESS_TOKEN}`,

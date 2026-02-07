@@ -1,8 +1,8 @@
 ---
 author: Moises Aguirre
-pubDatetime: 2026-02-06T18:30:00Z
+pubDatetime: 2026-02-06T19:00:00Z
 title: "If You Use AI at Work and Nobody Hears It, Did It Really Happen?"
-postSlug: the-silent-ai-user
+postSlug: the-ai-narrative
 featured: true
 draft: false
 tags:

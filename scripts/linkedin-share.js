@@ -8,6 +8,7 @@ import axios from "axios";
 const ACCESS_TOKEN = process.env.LINKEDIN_ACCESS_TOKEN;
 const USER_URN = process.env.LINKEDIN_USER_URN; // e.g., 'urn:li:person:123456789'
 const SITE_URL = "https://moises-aguirre.com"; // Your deployed site URL
+const API_VERSION = "202401"; // Latest LinkedIn API version
 
 if (!ACCESS_TOKEN || !USER_URN) {
   console.error("Missing LINKEDIN_ACCESS_TOKEN or LINKEDIN_USER_URN environment variables.");
@@ -26,7 +27,6 @@ async function postToLinkedIn(post) {
   const { title, description, postSlug, tags } = post.data;
   
   // Construct the URL
-  // Prefer postSlug if available, otherwise use filename (passed in as part of the 'post' object context if needed, but let's assume postSlug is best practice here)
   const slug = postSlug || path.basename(post.filePath, '.md');
   const articleUrl = `${SITE_URL}/posts/${slug}/`;
 
@@ -34,61 +34,47 @@ async function postToLinkedIn(post) {
   const hashtags = tags ? tags.map(tag => `#${tag.replace(/\s+/g, '')}`).join(' ') : "";
 
   // Construct the message text
-  const message = `🚀 New Blog Post: ${title}
+  const message = `🚀 New Blog Post: ${title}\n\n${description}\n\nRead more here: ${articleUrl}\n\n${hashtags}`;
 
-${description}
-
-Read more here: ${articleUrl}
-
-${hashtags}`;
-
-  // LinkedIn API Payload
-  // Using the text-only share or article share structure.
-  // Article share is better for previews.
+  // Modern LinkedIn API Payload (/rest/posts)
   const payload = {
     author: USER_URN,
+    commentary: message,
+    visibility: "PUBLIC",
+    distribution: {
+      feedDistribution: "MAIN_FEED",
+      targetEntities: [],
+      thirdPartyDistributionChannels: []
+    },
+    content: {
+      article: {
+        source: articleUrl,
+        title: title,
+        description: description.substring(0, 200)
+      }
+    },
     lifecycleState: "PUBLISHED",
-    specificContent: {
-      "com.linkedin.ugc.ShareContent": {
-        shareCommentary: {
-          text: message,
-        },
-        shareMediaCategory: "ARTICLE",
-        media: [
-          {
-            status: "READY",
-            description: {
-              text: description.substring(0, 200), // Limit description length
-            },
-            originalUrl: articleUrl,
-            title: {
-              text: title,
-            },
-          },
-        ],
-      },
-    },
-    visibility: {
-      "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC",
-    },
+    isReshareDisabledByAuthor: false
   };
 
   try {
     const response = await axios.post(
-      "https://api.linkedin.com/v2/ugcPosts",
+      "https://api.linkedin.com/rest/posts",
       payload,
       {
         headers: {
           Authorization: `Bearer ${ACCESS_TOKEN}`,
+          "LinkedIn-Version": API_VERSION,
           "X-Restli-Protocol-Version": "2.0.0",
           "Content-Type": "application/json",
         },
       }
     );
-    console.log(`Successfully posted: "${title}" to LinkedIn. Post ID: ${response.data.id}`);
+    // LinkedIn /rest/posts returns 201 Created with an 'x-linkedin-id' header or similar
+    const postId = response.headers['x-restli-id'] || response.data.id;
+    console.log(`Successfully posted: "${title}" to LinkedIn. Post ID: ${postId}`);
   } catch (error) {
     console.error(`Failed to post "${title}":`, error.response ? error.response.data : error.message);
-    // Don't exit process, try other files if any
   }
 }
 

@@ -4,19 +4,6 @@ import path from "path";
 import matter from "gray-matter";
 import axios from "axios";
 
-// --- Local Testing Support ---
-const envPath = path.resolve(".env.local");
-if (fs.existsSync(envPath)) {
-  const envFile = fs.readFileSync(envPath, "utf8");
-  envFile.split("\n").forEach(line => {
-    const [key, ...valueParts] = line.split("=");
-    if (key && valueParts.length > 0) {
-      process.env[key.trim()] = valueParts.join("=").trim().replace(/^["']|["']$/g, "");
-    }
-  });
-}
-// -----------------------------
-
 // Environment variables
 const ACCESS_TOKEN = process.env.LINKEDIN_ACCESS_TOKEN;
 const USER_URN_OVERRIDE = process.env.LINKEDIN_USER_URN;
@@ -42,7 +29,7 @@ async function getMyUrn() {
 
   const endpoints = [
     "https://api.linkedin.com/v2/userinfo",
-    "https://api.linkedin.com/v2/me"
+    "https://api.linkedin.com/v2/me",
   ];
 
   console.log("🔍 Attempting to auto-discover User URN...");
@@ -51,13 +38,12 @@ async function getMyUrn() {
     try {
       console.log(`Trying endpoint: ${url}`);
       const response = await axios.get(url, {
-        headers: { 
+        headers: {
           Authorization: `Bearer ${ACCESS_TOKEN}`,
-          "X-Restli-Protocol-Version": "2.0.0"
+          "X-Restli-Protocol-Version": "2.0.0",
         },
       });
-      
-      // sub is for userinfo, id is for /me
+
       const id = response.data.sub || response.data.id;
       if (id) {
         const urn = `urn:li:person:${id}`;
@@ -65,11 +51,15 @@ async function getMyUrn() {
         return urn;
       }
     } catch (error) {
-      console.warn(`⚠️ Endpoint ${url} failed: ${error.response?.status || error.message}`);
+      console.warn(
+        `⚠️ Endpoint ${url} failed: ${error.response?.status || error.message}`
+      );
     }
   }
 
-  console.error("❌ All discovery endpoints failed. Please provide LINKEDIN_USER_URN in .env.local or GitHub Secrets.");
+  console.error(
+    "❌ All discovery endpoints failed. Please provide LINKEDIN_USER_URN in GitHub Secrets."
+  );
   return null;
 }
 
@@ -77,7 +67,9 @@ async function postToLinkedIn(post, authorUrn) {
   const { title, description, postSlug, tags } = post.data;
   const slug = postSlug || path.basename(post.filePath, ".md");
   const articleUrl = `${SITE_URL}/posts/${slug}/`;
-  const hashtags = tags ? tags.map(tag => `#${tag.replace(/\s+/g, "")}`).join(" ") : "";
+  const hashtags = tags
+    ? tags.map(tag => `#${tag.replace(/\s+/g, "")}`).join(" ")
+    : "";
   const message = `🚀 New Blog Post: ${title}\n\n${description}\n\nRead more here: ${articleUrl}\n\n${hashtags}`;
 
   // Modern LinkedIn Post Payload (/rest/posts)
@@ -111,14 +103,17 @@ async function postToLinkedIn(post, authorUrn) {
         "Content-Type": "application/json",
       },
     });
-    
+
     const postId = response.headers["x-restli-id"] || response.data.id;
     console.log(`🚀 Successfully posted! Post ID: ${postId}`);
   } catch (error) {
     console.error(`❌ Failed to post "${title}":`);
     if (error.response) {
       console.error("Status:", error.response.status);
-      console.error("Full Error Details:", JSON.stringify(error.response.data, null, 2));
+      console.error(
+        "Full Error Details:",
+        JSON.stringify(error.response.data, null, 2)
+      );
     } else {
       console.error("Error Message:", error.message);
     }
@@ -132,7 +127,7 @@ async function main() {
   }
 
   if (files.length === 0) {
-    console.log("ℹ️ No files provided. Diagnostic mode complete.");
+    console.log("ℹ️ No files provided. Ready for use.");
     return;
   }
 

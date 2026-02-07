@@ -8,7 +8,7 @@ import axios from "axios";
 const ACCESS_TOKEN = process.env.LINKEDIN_ACCESS_TOKEN;
 const USER_URN = process.env.LINKEDIN_USER_URN; // e.g., 'urn:li:person:123456789'
 const SITE_URL = "https://moises-aguirre.com"; // Your deployed site URL
-const API_VERSION = "202401"; // Latest LinkedIn API version
+const API_VERSION = "202501"; // Latest LinkedIn API version
 
 if (!ACCESS_TOKEN || !USER_URN) {
   console.error("Missing LINKEDIN_ACCESS_TOKEN or LINKEDIN_USER_URN environment variables.");
@@ -65,7 +65,6 @@ async function postToLinkedIn(post) {
         headers: {
           Authorization: `Bearer ${ACCESS_TOKEN}`,
           "LinkedIn-Version": API_VERSION,
-          "X-Restli-Protocol-Version": "2.0.0",
           "Content-Type": "application/json",
         },
       }

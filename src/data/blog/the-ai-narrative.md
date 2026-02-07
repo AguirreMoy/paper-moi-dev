@@ -7,9 +7,10 @@ featured: true
 draft: false
 tags:
   - AI
-  - career-growth
+  - careergrowth
   - teamwork
   - productivity
+  - linkedin
 description: "Why 'closet' AI usage is holding your team back—and how to start narrating your AI-powered workflows for the greater good."
 linkedin_share: true
 ---

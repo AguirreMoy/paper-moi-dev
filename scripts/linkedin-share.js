@@ -4,50 +4,73 @@ import path from "path";
 import matter from "gray-matter";
 import axios from "axios";
 
+// --- Local Testing Support ---
+const envPath = path.resolve(".env.local");
+if (fs.existsSync(envPath)) {
+  const envFile = fs.readFileSync(envPath, "utf8");
+  envFile.split("\n").forEach(line => {
+    const [key, ...valueParts] = line.split("=");
+    if (key && valueParts.length > 0) {
+      process.env[key.trim()] = valueParts.join("=").trim().replace(/^["']|["']$/g, "");
+    }
+  });
+}
+// -----------------------------
+
 // Environment variables
 const ACCESS_TOKEN = process.env.LINKEDIN_ACCESS_TOKEN;
 const USER_URN_OVERRIDE = process.env.LINKEDIN_USER_URN;
 const SITE_URL = "https://moises-aguirre.com";
-const API_VERSION = "202601"; // Latest active version as per docs
+const API_VERSION = "202601";
 
 if (!ACCESS_TOKEN) {
-  console.error("Missing LINKEDIN_ACCESS_TOKEN environment variable.");
+  console.error("❌ Missing LINKEDIN_ACCESS_TOKEN environment variable.");
   process.exit(1);
 }
 
-// Get files from arguments
 const files = process.argv.slice(2);
 
-if (files.length === 0) {
-  console.log("No new files to process.");
-  process.exit(0);
-}
-
 /**
- * Attempts to get the current member's URN from LinkedIn API.
- * This is more reliable than manually providing it.
+ * Discovers the correct Member URN using the OpenID UserInfo endpoint.
+ * Note: LinkedIn uses /v2/userinfo for OpenID Connect tokens.
  */
 async function getMyUrn() {
-  if (USER_URN_OVERRIDE) {
+  if (USER_URN_OVERRIDE && USER_URN_OVERRIDE.startsWith("urn:li:")) {
     console.log(`Using provided URN: ${USER_URN_OVERRIDE}`);
     return USER_URN_OVERRIDE;
   }
 
-  try {
-    console.log("Attempting to auto-discover User URN...");
-    const response = await axios.get("https://api.linkedin.com/userinfo", {
-      headers: { Authorization: `Bearer ${ACCESS_TOKEN}` },
-    });
-    const urn = `urn:li:person:${response.data.sub}`;
-    console.log(`Auto-discovered URN: ${urn}`);
-    return urn;
-  } catch (error) {
-    console.error("Failed to auto-discover URN. Please provide LINKEDIN_USER_URN secret.");
-    if (error.response) {
-      console.error("Status:", error.response.status, error.response.data);
+  const endpoints = [
+    "https://api.linkedin.com/v2/userinfo",
+    "https://api.linkedin.com/v2/me"
+  ];
+
+  console.log("🔍 Attempting to auto-discover User URN...");
+
+  for (const url of endpoints) {
+    try {
+      console.log(`Trying endpoint: ${url}`);
+      const response = await axios.get(url, {
+        headers: { 
+          Authorization: `Bearer ${ACCESS_TOKEN}`,
+          "X-Restli-Protocol-Version": "2.0.0"
+        },
+      });
+      
+      // sub is for userinfo, id is for /me
+      const id = response.data.sub || response.data.id;
+      if (id) {
+        const urn = `urn:li:person:${id}`;
+        console.log(`✅ Auto-discovered URN: ${urn}`);
+        return urn;
+      }
+    } catch (error) {
+      console.warn(`⚠️ Endpoint ${url} failed: ${error.response?.status || error.message}`);
     }
-    return null;
   }
+
+  console.error("❌ All discovery endpoints failed. Please provide LINKEDIN_USER_URN in .env.local or GitHub Secrets.");
+  return null;
 }
 
 async function postToLinkedIn(post, authorUrn) {
@@ -57,7 +80,7 @@ async function postToLinkedIn(post, authorUrn) {
   const hashtags = tags ? tags.map(tag => `#${tag.replace(/\s+/g, "")}`).join(" ") : "";
   const message = `🚀 New Blog Post: ${title}\n\n${description}\n\nRead more here: ${articleUrl}\n\n${hashtags}`;
 
-  // Modern LinkedIn Post Payload
+  // Modern LinkedIn Post Payload (/rest/posts)
   const payload = {
     author: authorUrn,
     commentary: message,
@@ -79,7 +102,7 @@ async function postToLinkedIn(post, authorUrn) {
   };
 
   try {
-    console.log(`Posting "${title}" to LinkedIn...`);
+    console.log(`📤 Posting "${title}" to LinkedIn as ${authorUrn}...`);
     const response = await axios.post("https://api.linkedin.com/rest/posts", payload, {
       headers: {
         Authorization: `Bearer ${ACCESS_TOKEN}`,
@@ -88,15 +111,16 @@ async function postToLinkedIn(post, authorUrn) {
         "Content-Type": "application/json",
       },
     });
+    
     const postId = response.headers["x-restli-id"] || response.data.id;
-    console.log(`✅ Successfully posted! Post ID: ${postId}`);
+    console.log(`🚀 Successfully posted! Post ID: ${postId}`);
   } catch (error) {
     console.error(`❌ Failed to post "${title}":`);
     if (error.response) {
       console.error("Status:", error.response.status);
-      console.error("Error Detail:", JSON.stringify(error.response.data, null, 2));
+      console.error("Full Error Details:", JSON.stringify(error.response.data, null, 2));
     } else {
-      console.error("Message:", error.message);
+      console.error("Error Message:", error.message);
     }
   }
 }
@@ -104,25 +128,30 @@ async function postToLinkedIn(post, authorUrn) {
 async function main() {
   const authorUrn = await getMyUrn();
   if (!authorUrn) {
-    console.error("Cannot proceed without a valid User URN.");
     process.exit(1);
   }
 
-  console.log(`Checking ${files.length} files for LinkedIn sharing...`);
+  if (files.length === 0) {
+    console.log("ℹ️ No files provided. Diagnostic mode complete.");
+    return;
+  }
 
   for (const filePath of files) {
     try {
+      if (!fs.existsSync(filePath)) {
+        console.error(`Missing file: ${filePath}`);
+        continue;
+      }
       const fileContent = fs.readFileSync(filePath, "utf8");
       const parsed = matter(fileContent);
 
       if (parsed.data.linkedin_share === true) {
-        console.log(`Processing: ${filePath}`);
         await postToLinkedIn({ ...parsed, filePath }, authorUrn);
       } else {
-        console.log(`Skipping (no opt-in): ${filePath}`);
+        console.log(`⏭️ Skipping (linkedin_share not true): ${filePath}`);
       }
     } catch (err) {
-      console.error(`Error processing ${filePath}:`, err.message);
+      console.error(`❌ Error processing ${filePath}:`, err.message);
     }
   }
 }

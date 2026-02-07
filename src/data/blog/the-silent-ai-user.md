@@ -41,8 +41,7 @@ When you keep that superpower to yourself, you’re creating a bottleneck. The "
 You don't need to be an "AI Influencer" to help your team. You just need to be transparent:
 
 1.  **Share the Prompt, Not Just the Output:** Next time you share a solution, drop the prompt you used in the comments. Let others see the "logic" behind the machine.
-2.  **Highlight the "Human-in-the-Loop" Step:** Show where the AI got it wrong and how you corrected it. That’s where your real value as a senior professional shines.
-3.  **Build a Prompt Library:** Start a shared doc or Wiki for your team. "Prompts that actually work for our codebase."
+2.  **Build a Prompt Library:** Start a shared doc or Wiki for your team. "Prompts that actually work for our codebase."
 
 ## The Narrator's Advantage
 

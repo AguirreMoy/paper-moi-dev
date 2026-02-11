@@ -2,7 +2,7 @@
 author: Moises Aguirre
 pubDatetime: 2026-02-10T20:00:00Z
 title: "Mall Rinks to Olympic Ice: The Donovan Carrillo Mindset"
-postSlug: donovan-carrillo-mindset
+postSlug: donovan-carrillo-barriers
 featured: true
 draft: false
 tags:

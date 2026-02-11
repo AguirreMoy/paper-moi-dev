@@ -7,7 +7,7 @@ import axios from "axios";
 // Environment variables
 const ACCESS_TOKEN = process.env.LINKEDIN_ACCESS_TOKEN;
 const USER_URN_OVERRIDE = process.env.LINKEDIN_USER_URN;
-const SITE_URL = "https://moises-aguirre.com";
+const SITE_URL = "https://moi.dev";
 const API_VERSION = "202601";
 
 if (!ACCESS_TOKEN) {
@@ -108,7 +108,7 @@ async function postToLinkedIn(post, authorUrn) {
     : bodyText;
 
   const cta = isTruncated ? "Read the rest here: " : "";
-  const message = `🚀 ${title}\n\n${displayBody}\n\n${cta}${articleUrl}\n\n${hashtags}`;
+  const message = `${title}\n\n${displayBody}\n\n${cta}${articleUrl}\n\n${hashtags}`;
 
   // Modern LinkedIn Post Payload (/rest/posts)
   const payload = {

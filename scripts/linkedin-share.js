@@ -85,7 +85,6 @@ function formatForLinkedIn(text) {
 async function postToLinkedIn(post, authorUrn) {
   const { postSlug, tags } = post.data;
   const title = formatForLinkedIn(post.data.title);
-  const description = formatForLinkedIn(post.data.description);
   const slug = postSlug || path.basename(post.filePath, ".md");
   const articleUrl = `${SITE_URL}/posts/${slug}/`;
   const hashtags = tags
@@ -125,7 +124,7 @@ async function postToLinkedIn(post, authorUrn) {
       article: {
         source: articleUrl,
         title: title,
-        description: description.substring(0, 200),
+        description: formatForLinkedIn(post.data.description).substring(0, 200),
       },
     },
     lifecycleState: "PUBLISHED",

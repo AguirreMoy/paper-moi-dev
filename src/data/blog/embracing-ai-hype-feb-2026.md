@@ -15,7 +15,7 @@ description: "Reflections on a month of leaning into AI, automation, and the mas
 linkedin_share: true
 ---
 
-I spent February leaning into the AI hype to see if it actually lived up to the noise. In our industry, it’s easy to get caught up in the binary debate of "AI is everything" versus "AI is just an autocomplete." This month, I decided to treat it as a literal member of my team. By building custom Copilot CLI skills and Python agents to automate "high-toil" tasks like OKR tracking, service reporting, and telemetry validation, I managed to reclaim about 8 hours of my week. 
+I spent February leaning into the AI hype to see if it actually lived up to the noise. In our industry, it’s easy to get caught up in the binary debate of "AI is everything" versus "AI is just an autocomplete." This month, I decided to treat it as a literal member of my team. By building custom Copilot CLI skills and Python agents to automate "high-toil" tasks like OKR tracking, service reporting, and telemetry validation, I managed to reclaim about 8 hours of my week.
 
 It’s one thing to use LLMs for boilerplate or quick shell commands, but it’s another to watch a tool I built autonomously validate OTLP (OpenTelemetry Protocol) emissions across our cloud infrastructure. This automation ensured 100% build stability even as we navigated a massive, ongoing transition to ARM-based hardware—a move that requires precise observability to prevent performance regressions.
 

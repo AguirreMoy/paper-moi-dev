@@ -2,7 +2,7 @@
 author: Moises Aguirre
 pubDatetime: 2026-03-02T10:00:00Z
 title: "Embracing the AI Hype: Why I’m Not Being Replaced (Yet)"
-postSlug: embracing-ai-hype-feb-2026
+postSlug: embracing-ai-hype-march-2026
 featured: true
 draft: false
 tags:
@@ -14,6 +14,8 @@ tags:
 description: "Reflections on a month of leaning into AI, automation, and the massive ongoing transition to ARM-based hardware."
 linkedin_share: true
 ---
+
+# Embracing the AI Hype: Why I’m Not Being Replaced (Yet)
 
 I spent February leaning into the AI hype to see if it actually lived up to the noise. In our industry, it’s easy to get caught up in the binary debate of "AI is everything" versus "AI is just an autocomplete." This month, I decided to treat it as a literal member of my team. By building custom Copilot CLI skills and Python agents to automate "high-toil" tasks like OKR tracking, service reporting, and telemetry validation, I managed to reclaim about 8 hours of my week.
 

@@ -22,7 +22,7 @@ ogImage: "../../assets/images/tmux-dev-session.png"
 
 For a long time, I was happily riding the Fish shell train. It was fast, the defaults were incredibly sensible, and the autosuggestions were life-changing. But recently, I found myself yearning for the raw compatibility and ecosystem that Zsh offers, especially as I integrate more advanced tooling into my workflow.
 
-Over the past week, I ripped off the band-aid and completely redid my dotfiles. The main goals? Switching back to Zsh and finally getting a Tmux setup that doesn't just work, but actively enhances my productivity—specifically when jumping between multiple "dev-sessions" and CLI-based AI agents.
+Over the past week, I ripped off the band-aid and completely redid my [dotfiles](https://github.com/AguirreMoy/dotfiles). The main goals? Switching back to Zsh and finally getting a Tmux setup that doesn't just work, but actively enhances my productivity—specifically when jumping between multiple "dev-sessions" and CLI-based AI agents.
 
 ## The Return to Zsh
 

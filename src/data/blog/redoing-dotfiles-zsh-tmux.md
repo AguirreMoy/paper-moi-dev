@@ -13,9 +13,12 @@ tags:
   - AI
 description: "Why I switched back to Zsh from Fish, and how I finally perfected my Tmux setup for jumping between AI dev-sessions."
 linkedin_share: true
+ogImage: "../../assets/images/tmux-dev-session.png"
 ---
 
 # Redoing My Dotfiles: From Fish to Zsh and Mastering Tmux
+
+![My new Tmux and Zsh environment](../../assets/images/tmux-dev-session.png)
 
 For a long time, I was happily riding the Fish shell train. It was fast, the defaults were incredibly sensible, and the autosuggestions were life-changing. But recently, I found myself yearning for the raw compatibility and ecosystem that Zsh offers, especially as I integrate more advanced tooling into my workflow.
 

@@ -82,14 +82,66 @@ function formatForLinkedIn(text) {
     .trim();
 }
 
+async function uploadImageToLinkedIn(imagePath, authorUrn) {
+  try {
+    if (!fs.existsSync(imagePath)) {
+      console.warn(`⚠️ Image not found at ${imagePath}`);
+      return null;
+    }
+    
+    console.log(`📤 Initializing image upload for ${imagePath}...`);
+    // 1. Initialize upload
+    const initResponse = await axios.post("https://api.linkedin.com/rest/images?action=initializeUpload", {
+      initializeUploadRequest: { owner: authorUrn }
+    }, {
+      headers: {
+        Authorization: `Bearer ${ACCESS_TOKEN}`,
+        "Linkedin-Version": API_VERSION,
+        "X-Restli-Protocol-Version": "2.0.0",
+        "Content-Type": "application/json",
+      },
+    });
+    
+    const uploadUrl = initResponse.data.value.uploadUrl;
+    const imageUrn = initResponse.data.value.image;
+    
+    console.log(`📤 Uploading binary data to LinkedIn...`);
+    // 2. Upload binary
+    const fileBuffer = fs.readFileSync(imagePath);
+    await axios.put(uploadUrl, fileBuffer, {
+      headers: {
+        Authorization: `Bearer ${ACCESS_TOKEN}`,
+        "Content-Type": "application/octet-stream",
+      },
+    });
+    
+    console.log(`✅ Image uploaded successfully. URN: ${imageUrn}`);
+    return imageUrn;
+  } catch (error) {
+    console.error(`❌ Failed to upload image:`);
+    if (error.response) {
+      console.error(JSON.stringify(error.response.data, null, 2));
+    } else {
+      console.error(error.message);
+    }
+    return null;
+  }
+}
+
 async function postToLinkedIn(post, authorUrn) {
-  const { postSlug, tags } = post.data;
+  const { postSlug, tags, ogImage } = post.data;
   const title = formatForLinkedIn(post.data.title);
   const slug = postSlug || path.basename(post.filePath, ".md");
   const articleUrl = `${SITE_URL}/posts/${slug}/`;
   const hashtags = tags
     ? tags.map(tag => `#${tag.replace(/\s+/g, "")}`).join(" ")
     : "";
+
+  let thumbnailUrn = null;
+  if (ogImage) {
+    const imagePath = path.resolve(path.dirname(post.filePath), ogImage);
+    thumbnailUrn = await uploadImageToLinkedIn(imagePath, authorUrn);
+  }
 
   // Format the post body content for LinkedIn commentary
   let bodyText = formatForLinkedIn(post.content);
@@ -130,6 +182,7 @@ async function postToLinkedIn(post, authorUrn) {
         source: articleUrl,
         title: title,
         description: formatForLinkedIn(post.data.description).substring(0, 200),
+        ...(thumbnailUrn && { thumbnail: thumbnailUrn })
       },
     },
     lifecycleState: "PUBLISHED",

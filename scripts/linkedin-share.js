@@ -108,7 +108,12 @@ async function postToLinkedIn(post, authorUrn) {
     : bodyText;
 
   const cta = isTruncated ? "Read the rest here: " : "";
-  const message = `${title}\n\n${displayBody}\n\n${cta}${articleUrl}\n\n${hashtags}`;
+  
+  // Helper to escape LinkedIn "Little Text" reserved characters
+  // LinkedIn parser truncates text if it encounters unescaped parentheses, brackets, etc.
+  const escapeLinkedInText = (text) => text.replace(/([|{}@\[\]()<>\\*_~])/g, '\\$1');
+
+  const message = `${escapeLinkedInText(title)}\n\n${escapeLinkedInText(displayBody)}\n\n${cta}${articleUrl}\n\n${hashtags}`;
 
   // Modern LinkedIn Post Payload (/rest/posts)
   const payload = {

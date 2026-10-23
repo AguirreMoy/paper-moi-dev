@@ -5,7 +5,7 @@ title: "My Resume"
 
 # Moises Aguirre
 
-Los Angeles, California, United States | aguirremoy@gmail.com | 626-427-4457 | [LinkedIn](in/Moises-Aguirre) | [GitHub](https://github.com/AguirreMoy)
+Seattle, Washington, United States | aguirremoy@gmail.com | 626-427-4457 | [LinkedIn](in/Moises-Aguirre) | [GitHub](https://github.com/AguirreMoy)
 
 ## Experience
 

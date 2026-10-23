@@ -2,7 +2,7 @@ export const SITE = {
   website: "https://moi.dev/", // replace this with your deployed domain
   author: "Moises Aguirre",
   profile: "https://github.com/AguirreMoy",
-  desc: "Personal blog and portfolio of Moises Aguirre, a Software Engineer at Google based in Kirkland, WA.",
+  desc: "Personal blog and portfolio of Moises Aguirre, a Software Engineer at Google based in Seattle, WA.",
   title: "Moises Aguirre",
   ogImage: "astropaper-og.jpg",
   lightAndDarkMode: true,
